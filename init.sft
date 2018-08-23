@@ -1,0 +1,178 @@
+--ClarenceOS boot/main script by clarence112
+--written for Project: Unification - SFT
+--Should run on any P:U full-certified project/program
+
+#DECLARE_DEPENDENCIES
+wm
+fs
+term
+sftversion >= 000
+#END
+
+#DECLARE_VOL_VARS
+*osver = "2.0.0"
+power = 1
+input = ""
+didwork = 0
+*user = "root"
+installcheck = 0
+loadedfile = _nil
+#END
+
+#DECLARE_NVOL_VARS
+/dat/vars.sdb
+#END
+
+#DECLARE_VOL_ARRAYS
+
+#END
+
+#DECLARE_NVOL_ARRAYS
+/dat/arrays.sdb
+#END
+
+#DECLARE_PLUGIN_DIR
+/plugins/
+#END
+
+#command(cominput)
+didwork = 0
+if cominput[1] == "ls"
+return(pass.fs("ls"))
+didwork = 1
+end
+if cominput[1] == "cd"
+return(pass.fs("cd", cominput[2+]))
+didwork = 1
+end
+if cominput[1] == "clear"
+pass.term("⎇reset")
+didwork = 1
+end
+if cominput[1] == "lala"
+return("'tis a test")
+end
+if cominput[1] == "fileload"
+loadedfile = pass.fs(cominput[2+])
+if loadedfile == _nil
+return("the file " .. cominput[2+]) " does not exist!")
+end
+if char(loadedfile, length(loadedfile)) == "/"
+return(cominput[2+] .. " is a directory, not a file.")
+loadedfile = _nil
+end
+end
+if cominput[1] == "filerun"
+if loadedfile == _nil
+return("no file loaded, load one with 'fileload'")
+else
+return(sft.exec(loadedfile))
+end
+end
+if cominput[1] == "fileunload"
+loadedfile = _nil
+return("unloaded file, if any")
+end
+if cominput[1] == "pwd"
+return(pass.fs("cdir"))
+end
+if cominput[1] == "mk"
+return(pass.fs("mk " .. cominput[2+])
+end
+if cominput[1] == "rm"
+return(pass.fs("rm " .. cominput[2+])
+end
+if cominput[1] == "shutdown"
+sft.stop()
+end
+if cominput[1] == "restart"
+sft.stop("r")
+end
+if cominput[1] == "save"
+sft.save()
+end
+if cominput[1] == "restore"
+sft.load()
+end
+if cominput[1] == "help"
+pass.term("choose a catigory (1-3)")
+pass.term("1: power")
+pass.term("2: utillity")
+pass.term("3: installed")
+pass.term("help > ")
+cominput[2] = pass.term("⎇input")
+if cominput[2] == 1
+pass.term("shutdown clos:")
+pass.term("    shutdown")
+pass.term("restart clos:
+pass.term("    restart")
+end
+if cominput[2] == 2
+pass.term("fileload.....load a file")
+pass.term("filerun......run a loaded file")
+pass.term("fileunload...unload the currently loaded file")
+pass.term("pwd..........print the current directory")
+pass.term("mk...........make a file or directory")
+pass.term("rm...........delete a file or directory")
+pass.term("save.........save a system restore point")
+pass.term("restore......load a system restore point")
+end
+if cominput[2] == 3
+plug.com("help")
+end
+if cominput[2] == 4
+pass.term("lala - og test command")
+end
+end
+
+return(plug.com(cominput)
+if didwork == 0
+return("the command " .. cominput[1] .. " does not exist! run 'help' to see a list of commands."
+end
+#END
+
+#advmode
+pass.term("****starting clos in terminal mode****")
+pass.term("begin sys info collection")
+pass.term(" ")
+pass.term("os version: " .. osver)
+pass.term("host os type: " .. _HOST)
+pass.term("sft version: " .. _VERSION .. ", built for sft 0.0.0")
+pass.term(" ")
+while restart == "1"
+if user == "root"
+pass.term("clos@" .. pass.fs("cdir") .. " >")
+else
+pass.term(user .. "@" .. pass.fs("cdir") .. " >")
+end
+pass.term(command(split(pass.term("⎇input"))))
+end
+#END
+
+#run(mode)
+pass.term("⎇reset")
+if mode == 1
+while power == 1
+errors("term")
+pass.term("⎇reg")
+advmode()
+end
+else
+errors("wm")
+pass.term("⎇wm")
+plug.com("regui")
+end
+#END
+
+#MAIN
+pass.term("select mode (1-2): 1: GUI 2: CLI")
+input = pass.term("⎇input")
+if not input == 1 or input == 2
+pass.term("Incorrect value")
+MAIN()
+else
+run(input)
+end
+#END
+
+NONKILL
